@@ -12,10 +12,10 @@ A mash is not scolded and not made into a game. It is written, and only the lett
 
 ## words and numbers
 
-- Half a second after the child stops, the text is read against the active word lists. Every real word or number is marked; the one just completed is spoken.
+- Half a second after the child stops, the text is read against the language the parent picked and My words. Every real word or number is marked; the one just completed is spoken.
 - A marked word is not spoken again until it changes.
 - A marked word reads with a capital first letter. It is a rendering of the mark only: nothing rewrites the characters the child typed.
-- A marked word is drawn in the colour it names for itself, or the one its emoji names, or its list's, or the plain ink when none does. Where the emoji's colour is the thing's colour the word takes it, so an apple is red and a frog is green.
+- A marked word is drawn in the colour it names for itself, or the one its emoji names, or the plain ink when none does. Where the emoji's colour is the thing's colour the word takes it, so an apple is red and a frog is green.
 - A word that can be drawn as an emoji is drawn with it inside the pill, before the word. A word the parent has given a picture is drawn with the picture in the emoji's place. A word with neither is drawn with neither.
 - A number is drawn in its own colour, never a word's, so a number pill never reads as a word.
 - When a word is complete — the child has stopped and it is marked at the end of the text — the app writes a space after it, so the next letter starts a new word instead of growing the one just read. That one space is the only character the app adds, and it can only lengthen the text.
@@ -28,22 +28,24 @@ One screen; the parent's two controls in the top corner — full screen and sett
 
 Text is anchored to the bottom, inside padding on every side: the newest character is written after the last and the caret moves with it, and older lines move up as the text grows. Pixels and spacing: `docs/DESIGN.md`.
 
-## word lists
+## words and languages
 
-The parent decides what the app marks. It ships with nine lists of the things a small child knows — animals, fruit and vegetables, food, weather and sky, vehicles, toys and play, home and things, people, and doing words — and a tenth, My words, that ships empty for the parent's own.
+The app marks words from one language pack at a time. It ships one, English: the kinds of word a small child knows — animals, fruit and vegetables, food, weather and sky, vehicles, toys and play, home and things, people, and doing words — in a single pack that is on by default. There is no list to turn on or off; the language the parent picks is the one the app marks.
 
-An allow-list, never "whatever letters make": the app marks and speaks only words on an active list. Every list is on by default, so the app works whatever the child happens to type; the parent turns off the ones they do not want.
+An allow-list, never "whatever letters make": the app marks and speaks only words the chosen language holds, and the ones the parent added.
+
+The parent's own words go in My words, which ships empty and is marked whatever language is picked: a word the parent added is never left out because of the language choice.
 
 The settings page is where the parent works on them:
 
-- turn any list on or off;
-- add a word to a list. A word is letters only, and one word lives on one list: a word another list already holds is refused, and the refusal names that list;
+- pick the language. English is the one the app ships;
+- add a word to My words. A word is letters only, and one word lives in one place: a word English already holds is refused, and the refusal names English;
 - change the emoji a word is drawn with, or leave the field empty to take its emoji away;
 - give a word a picture off the device, which is drawn where its emoji would be, and take the picture off again;
-- take a word off a list;
-- put the built-in lists back — one control, which takes the parent's words, emojis and pictures off the device and restores what shipped.
+- take a word out of My words;
+- put the built-in words back — one control, which takes the parent's words, emojis and pictures off the device and restores what shipped.
 
-The lists are the parent's once they are on the device: a list may end up shorter than it shipped, and My words holds whatever the parent typed. A change is kept on the device as it is made.
+My words is the parent's once it is on the device, and a change is kept on the device as it is made.
 
 ## leaving and locking
 
@@ -54,7 +56,7 @@ The lists are the parent's once they are on the device: a list may end up shorte
 
 ## offline and private
 
-No request off the device. No account, analytics, ads, or third party. Runs with the network off. Nothing leaves the device: the lists and the pictures the parent adds are kept on the device, and the child's text is gone when the app closes. Deliberate.
+No request off the device. No account, analytics, ads, or third party. Runs with the network off. Nothing leaves the device: the words and the pictures the parent adds are kept on the device, and the child's text is gone when the app closes. Deliberate.
 
 ## v1 does not do
 
@@ -64,14 +66,14 @@ Lessons, levels, scoring, rewards, streaks, curriculum, profiles, sync, a parent
 
 1. One key → its character on the screen, within 150 ms, measured.
 2. A hand dragged across the keyboard → every character it passed, written; no sound.
-3. A real word or number on an active list → marked, nothing asked.
+3. A real word on the chosen language or in My words, or a number → marked, nothing asked.
 4. A held key → one character, no repeat.
 5. Network off, half an hour, no route to the settings page the child can reach.
 6. A flurry is written in full at any speed, and read aloud only at the letter it ends on.
 7. Nothing typed is ever withheld: every character the child presses is written, and no press removes or rewrites one already written. The only character the app adds is the space after a completed word.
 8. A word the parent adds, with an emoji or a picture of the parent's own, is marked and drawn like any word that shipped.
-9. The parent's lists, words, emojis and pictures are still on the device after a reload.
-10. Restore takes the parent's words, emojis and pictures off the device and puts the built-in lists back.
+9. The parent's words, emojis, pictures and choice of language are still on the device after a reload.
+10. Restore takes the parent's words, emojis and pictures off the device and puts the built-in words back.
 
 ## name
 

@@ -16,7 +16,7 @@ One page, drawn in the browser. It builds to static files and nothing runs on th
 - The whole app is client-rendered (`src/routes/+layout.ts` sets `ssr = false`) and prerendered to a shell. The build writes that shell twice: to `index.html`, and to `404.html` — the fallback GitHub Pages serves for a path it does not hold.
 - The app's own screen is at `/`; `src/routes/[...rest]/` renders that same screen for any other path, so an address the app does not hold still opens it rather than a not-found page. That route is not prerendered — it is what the fallback page serves.
 - The only third-party file, if any, is vendored in the repository, pinned and hashed, with its licence beside it — never a CDN. The app promises no third-party request, and a CDN is one more thing that must be up for it to work offline.
-- The built-in word lists are the JSON under `static/lists/`: `index.json` names them in order, and each list has its own file. They are read into the device on a first run, and they are precached with the shell — an install whose first run has the network off would otherwise open with no words on it at all.
+- The built-in word packs are the JSON under `static/lists/`: `index.json` names them in order, and each pack has its own file — `english.json`, and the empty `custom.json` the parent fills. They are read into the device on a first run, and they are precached with the shell — an install whose first run has the network off would otherwise open with no words on it at all.
 - Keyboard input is the browser's own key events. Every character key is written as it goes down; the system's key auto-repeat is ignored (the event's own repeat flag), which is what "a held key gives one character, no repeat" means in code.
 
 ## speech
@@ -36,9 +36,9 @@ One page, drawn in the browser. It builds to static files and nothing runs on th
 
 ## storage
 
-- The word lists, their words, each word's emoji and each word's picture live in IndexedDB, on the device (`src/lib/store.ts`). The built-in lists are read into it from `static/lists/` on a first run; after that the database is the copy the app marks from, the parent's edits and pictures included.
+- The word packs, their words, each word's emoji and each word's picture live in IndexedDB, on the device (`src/lib/store.ts`). The built-in packs are read into it from `static/lists/` on a first run; after that the database is the copy the app marks from, the parent's words and pictures included. A re-seed keeps the parent's own pack and drops the packs the app no longer ships.
 - A word's picture is stored as a data URL, scaled on the way in to fit 512px on its long edge (`src/lib/images.ts`). A photo off a camera roll would otherwise put megabytes into the database and megabytes through the DOM on every redraw.
-- The parent's settings — which lists are on — live in the visitor's `localStorage` (`src/lib/settings.ts`).
+- The parent's setting — the language chosen — lives in the visitor's `localStorage` (`src/lib/settings.ts`). The parent's own words are marked whatever language is chosen.
 - The child's text is never stored; it is gone when the app closes.
 
 ## full screen
@@ -52,7 +52,7 @@ Neither is a lock. Esc, an OS shortcut, a notification, and the volume or power 
 
 ## checks
 
-`bun run check` runs the gate: `svelte-check` over the app's TypeScript and Svelte files, `tsc` over the service worker in its own context, and the unit tests (`bun test`) for the lists, words and numbers.
+`bun run check` runs the gate: `svelte-check` over the app's TypeScript and Svelte files, `tsc` over the service worker in its own context, and the unit tests (`bun test`) for the packs, words and numbers.
 
 What needs a browser is run against a built copy in a real Chrome — `bun run build` then `bun run preview` — and is not part of the gate:
 
@@ -60,11 +60,12 @@ What needs a browser is run against a built copy in a real Chrome — `bun run b
 - a replayed drag across the keyboard writes every character it passed, and is read aloud only at the letter it ends on;
 - a held key gives one character;
 - the settings page opens from the corner control and from the Shift-hold, and leaves the child's text alone;
-- a list turned off stops being marked, and the choice survives a reload;
+- the chosen language is the one marked, and the choice survives a reload;
 - a word added on the settings page is marked, is drawn with its emoji or its picture, and is still there after a reload;
-- a word another list already holds is refused, naming that list;
+- a word English already holds is refused, naming English;
+- a word on My words is marked whatever the language, and is still there after a reload;
 - Restore takes the parent's own words off the device;
-- the built-in lists are precached with the shell;
+- the built-in packs are precached with the shell;
 - a reload with the network off opens the app and still marks words;
 - no console error.
 

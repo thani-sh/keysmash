@@ -41,7 +41,7 @@ The text keeps clear of every edge: the screen is inset by its padding on all fo
 
 - A word the parent has given a picture is drawn with the picture in the emoji's place, inside the pill before the word. The picture or the emoji, never both.
 - It is drawn as a circle `1em` across: a square box the picture fills, so whatever its shape it is cropped to its middle rather than squeezed to fit a circle. Measured: a pill is 152.6px tall whether its word is drawn with an emoji, with a picture, or with neither, so a picture cannot change a pill's height or where a line wraps.
-- The gap is measured from ink, not from a box. An emoji's glyph carries the typeface's side bearings: at the app's text size the middle emoji of the lists sits `8px` (`0.08em`) inside its box on each side, measured from the pixels on the emoji font the build has. The pill's `0.12em` gap to its word therefore falls `0.20em` from an emoji's ink. A picture's ink fills its box, so the picture takes those bearings as its own margins — `0.08em` left, `0.2em` right — and sits exactly where an emoji's ink sits. A device whose emoji font carries different bearings draws those; the picture keeps these margins, and the browser suite measures the two and fails if they drift apart.
+- The gap is measured from ink, not from a box. An emoji's glyph carries the typeface's side bearings: at the app's text size the middle emoji of the built-in words sits `8px` (`0.08em`) inside its box on each side, measured from the pixels on the emoji font the build has. The pill's `0.12em` gap to its word therefore falls `0.20em` from an emoji's ink. A picture's ink fills its box, so the picture takes those bearings as its own margins — `0.08em` left, `0.2em` right — and sits exactly where an emoji's ink sits. A device whose emoji font carries different bearings draws those; the picture keeps these margins, and the browser suite measures the two and fails if they drift apart.
 - It sits on the text's baseline, dropped `0.08em`.
 - It is an element carrying no text, so the pill still holds exactly the characters the child typed.
 
@@ -49,18 +49,19 @@ The text keeps clear of every edge: the screen is inset by its padding on all fo
 
 The parent's page. It covers the play screen and is the app's own surface: white, the ink black, nothing else.
 
-- One text size for the page, `clamp(17px, 2.4vmin, 26px)`; the title is `1.7em` of it and a list's name `1.2em`.
+- One text size for the page, `clamp(17px, 2.4vmin, 26px)`; the title is `1.7em` of it, a section's name `1.2em`, and the name of a language `1.2em`.
 - The page's rules and every control's outline are one weight, `2px`, and every control the parent presses is an outline and a word: no fill, no colour, no shadow.
-- A list shows its name, whether it is on, how many words it holds, and one control that opens its words.
-- A word shows its letters; its emoji, in a field the parent can change; its picture, as a thumbnail, when it has one; and the controls that give it a picture, take the picture off, and take the word off the list.
+- Two sections, each closed by the rule: the language, and My words.
+- A language shows its name, how many words it holds, and a radio that picks it.
+- A word under My words shows its letters; its emoji, in a field the parent can change; its picture, as a thumbnail, when it has one; and the controls that give it a picture, take the picture off, and take the word off.
 - The page scrolls. It is the one screen in the app that holds more than a screenful.
 
 ## type and colour
 
 - One text size, large, one sans-serif at its regular weight. Set and measured at build.
-- Surface `#ffffff`. Ink `#000000`, for the text and for a word no list colours.
-- A word's colour is the one it names for itself, else the one its emoji names, else its list's, else the ink. The outline takes the word's colour too.
-- It takes its emoji's colour where that colour is the thing's colour, so an apple is red and a frog is green. Where the emoji says nothing about the word — a figure is skin-coloured whatever the word is, a book is drawn in whatever colour the font chose — the word keeps its list's colour.
+- Surface `#ffffff`. Ink `#000000`, for the text and for a word that names no colour.
+- A word's colour is the one it names for itself, else the one its emoji names, else the ink. The outline takes the word's colour too.
+- It takes its emoji's colour where that colour is the thing's colour, so an apple is red and a frog is green. Where the emoji says nothing about the word — a figure is skin-coloured whatever the word is, a book is drawn in whatever colour the font chose — the word keeps the colour it carries.
 - A number is drawn in its own colour, never a word's.
 - Every colour is measured against the surface at build; no value ships unmeasured. Contrast against `#ffffff`:
   - red `#b91c1c`, 6.47:1

@@ -70,6 +70,11 @@ function colorOf(entry: Word): string | undefined {
   return entry.color ?? colorOfEmoji(entry.emoji);
 }
 
+/** How one word is drawn: the emoji, colour and picture a pill shows for it. */
+export function drawingOf(entry: Word): Drawing {
+  return { emoji: entry.emoji, color: colorOf(entry), image: entry.image };
+}
+
 /**
  * The words the app marks, keyed lower-case, each with the emoji, colour and
  * image it is drawn with: those of the chosen language and those of the
@@ -80,7 +85,7 @@ export function wordsFor(language: string, packs: readonly Pack[]): Map<string, 
   for (const pack of packs) {
     if (pack.id !== language && pack.id !== CUSTOM_PACK_ID) continue;
     for (const entry of pack.words) {
-      words.set(entry.word, { emoji: entry.emoji, color: colorOf(entry), image: entry.image });
+      words.set(entry.word, drawingOf(entry));
     }
   }
   return words;

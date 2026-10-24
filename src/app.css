@@ -24,8 +24,8 @@
      border to a whole pixel but paints a caret's background at any width, so
      only px keeps the two identical. */
   --stroke: 8px;
-  /* The settings page draws its rules, its control outlines and its sample
-     pills at one weight, so a page of controls reads as one surface. */
+  /* The settings page's control outlines are drawn at one weight, so a page of
+     controls reads as one surface. */
   --rule: 2px;
 }
 
@@ -226,18 +226,18 @@ body {
   overflow: auto;
   background: var(--surface);
   color: var(--ink);
-  padding: 3vmin;
+  padding: 7vmin;
   font-size: clamp(17px, 2.4vmin, 26px);
   line-height: 1.5;
 }
 
+/* The title and the way out. The way out is drawn as the play screen draws its
+   corner controls: an outline and no frame of its own. */
 #settings header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 2vmin;
-  padding-bottom: 0.6em;
-  border-bottom: var(--rule) solid var(--ink);
 }
 
 #settings h1 {
@@ -246,42 +246,34 @@ body {
   font-weight: 400;
 }
 
-/* Everything the parent can press is the ink on the surface: an outline and a
-   word, the same at every size. */
-#settings button,
-#settings input[type="text"],
-#settings .picture {
-  font: inherit;
+#settings .close {
+  width: 4.5vmin;
+  height: 4.5vmin;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--ink);
-  background: var(--surface);
-  border: var(--rule) solid var(--ink);
-  border-radius: 0.3em;
-  padding: 0.2em 0.6em;
-}
-
-#settings button {
   cursor: pointer;
 }
 
-/* One section of the page: the language to mark, then the parent's own words.
-   Each is closed by the same rule the header carries. */
-#settings .section {
-  border-bottom: var(--rule) solid var(--ink);
-  padding: 0.7em 0;
+#settings .close svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-/* A section's name, a step larger than the page. */
+/* No rules between the sections: the pills are what the page is about, and a
+   line would draw a box around them. */
 #settings h2 {
-  margin: 0 0 0.5em;
+  margin: 1.4em 0 0.4em;
   font-size: 1.2em;
   font-weight: 400;
 }
 
-#settings h2 .count {
+#settings .count {
   font-size: 0.8em;
 }
 
-/* One language to pick: a radio and its name. */
 #settings .choice {
   display: flex;
   align-items: center;
@@ -297,65 +289,184 @@ body {
   cursor: pointer;
 }
 
-/* A step larger, so the language the app marks reads as the page's subject. */
 #settings .choice .name {
   font-size: 1.2em;
 }
 
-#settings .words {
-  margin-top: 0.6em;
+/* The parent's words are drawn as the child's screen draws them: the same
+   pill, at the same size, with the same emoji or picture and the same colour. */
+#settings .pills {
   display: flex;
-  flex-direction: column;
-  gap: 0.5em;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  font-size: 12vmin;
+  line-height: normal;
 }
 
-#settings .word {
+#settings .pills .mark {
+  position: relative;
+  margin-right: 0;
+}
+
+/* The emoji, the picture, or the room one would take, and the way to change
+   it. It is a button, and it takes the room the play screen's emoji takes. */
+#settings .pill .art {
+  display: inline;
+  margin: 0 0.12em 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: -0.08em;
+}
+
+#settings .pill .art img {
+  width: 1em;
+  height: 1em;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0;
+  vertical-align: -0.08em;
+}
+
+#settings .pill .none {
+  display: inline-block;
+  width: 0.86em;
+  height: 0.86em;
+  border: 0.05em solid currentColor;
+  border-radius: 50%;
+  opacity: 0.25;
+  vertical-align: -0.08em;
+}
+
+#settings .pill .none-slot {
+  cursor: default;
+}
+
+/* The way to take a word off, on the pill's corner while the pointer is on it:
+   the page stays quiet until it is being worked on. */
+#settings .pill .remove {
+  position: absolute;
+  top: -0.35em;
+  right: -0.35em;
+  width: 0.9em;
+  height: 0.9em;
+  padding: 0;
+  border: 0.06em solid var(--ink);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#settings .pill .remove svg {
+  width: 58%;
+  height: 58%;
+  display: block;
+}
+
+#settings .pill:hover .remove,
+#settings .pill:focus-within .remove {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* The emoji field and the picture button, under the word they change. */
+#settings .pick {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 3;
   display: flex;
   align-items: center;
   gap: 0.5em;
-  flex-wrap: wrap;
-}
-
-/* The word's picture, at settings size, drawn as the circle the pill draws. It
-   is the same data, and it is the only place the picture is shown on this page. */
-#settings .thumb {
-  width: 1.6em;
-  height: 1.6em;
-  object-fit: cover;
+  margin-top: 0.5em;
+  padding: 0.4em 0.5em;
+  background: var(--surface);
   border: var(--rule) solid var(--ink);
-  border-radius: 50%;
+  border-radius: 0.3em;
+  font-size: clamp(14px, 1.8vmin, 20px);
+  line-height: 1.2;
+  text-transform: none;
+  white-space: nowrap;
 }
 
-#settings .word > .name {
-  min-width: 5em;
-}
-
-#settings .emoji {
+#settings .pick .emoji {
   width: 5em;
   text-align: center;
 }
 
-#settings .picture {
+#settings .pick .picture {
   cursor: pointer;
 }
 
-#settings .picture input {
+#settings .pick .picture input {
   display: none;
 }
 
-#settings .add {
-  display: flex;
-  gap: 0.5em;
-  margin-top: 0.4em;
+#settings .pick input[type="text"],
+#settings .pick .picture,
+#settings .restore-button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: var(--rule) solid var(--ink);
+  border-radius: 0.3em;
+  padding: 0.2em 0.6em;
+  cursor: pointer;
 }
 
-#settings .add .new {
-  flex: 1;
-  min-width: 6em;
+/* The word a new pill is for: typed where it will read. */
+#settings .pill .new {
+  min-width: 2em;
+  max-width: 8em;
+  field-sizing: content;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  outline: 0;
+}
+
+/* The way to add a word: a plus at the end of the list, as tall as the pills
+   beside it are wide. */
+#settings .pills .add {
+  width: 1.3em;
+  height: 1.3em;
+  padding: 0;
+  border: 0.06em solid var(--ink);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font: inherit;
+}
+
+#settings .pills .add svg {
+  width: 55%;
+  height: 55%;
+  display: block;
+}
+
+#settings .pills .add:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 #settings .error {
-  margin: 0;
+  margin: 0.6em 0 0;
 }
 
 #settings .restore {
@@ -363,7 +474,7 @@ body {
   align-items: center;
   gap: 1em;
   flex-wrap: wrap;
-  padding-top: 1em;
+  margin-top: 2.5em;
 }
 
 #settings .note {

@@ -50,10 +50,15 @@ The text keeps clear of every edge: the screen is inset by its padding on all fo
 The parent's page. It covers the play screen and is the app's own surface: white, the ink black, nothing else.
 
 - One text size for the page, `clamp(17px, 2.4vmin, 26px)`; the title is `1.7em` of it, a section's name `1.2em`, and the name of a language `1.2em`.
-- The page's rules and every control's outline are one weight, `2px`, and every control the parent presses is an outline and a word: no fill, no colour, no shadow.
-- Two sections, each closed by the rule: the language, and My words.
+- The page draws no rules. The words are the page, and a line under a heading would draw a box round them.
+- The way out is a close icon in the top corner, drawn as the play screen draws its corner controls: the ink, no frame, no word.
+- Every control the parent presses is an outline and a word: no fill, no colour, no shadow.
+- Two sections: the language, and My words.
 - A language shows its name, how many words it holds, and a radio that picks it.
-- A word under My words shows its letters; its emoji, in a field the parent can change; its picture, as a thumbnail, when it has one; and the controls that give it a picture, take the picture off, and take the word off.
+- A word under My words is drawn as the play screen draws it: the same pill at the same size, in its colour, with its emoji or its picture, or the empty room one would take.
+- The pill's picture is pressed to change it: a panel opens under the pill with a field for its emoji and a picture off the device, and either is drawn where the emoji would be.
+- A pill carries its remove control — an `×` on its top corner — while the pointer is on it.
+- An empty pill at the end of the list takes a new word, typed where it will read; a `+` beside the pills adds one.
 - The page scrolls. It is the one screen in the app that holds more than a screenful.
 
 ## type and colour

@@ -125,7 +125,7 @@ body {
 
 /* A marked word is drawn in its colour, its outline included: the outline is
    `currentColor`. The colour is the word's own, or the one its emoji names
-   (src/lib/emoji-colors.ts), or its list's, or the ink. */
+   (src/lib/emoji-colors.ts), or the ink. */
 .mark[data-color="red"] { color: var(--ink-red); }
 .mark[data-color="orange"] { color: var(--ink-orange); }
 .mark[data-color="amber"] { color: var(--ink-amber); }
@@ -263,27 +263,33 @@ body {
   cursor: pointer;
 }
 
-#settings .list {
+/* One section of the page: the language to mark, then the parent's own words.
+   Each is closed by the same rule the header carries. */
+#settings .section {
   border-bottom: var(--rule) solid var(--ink);
   padding: 0.7em 0;
 }
 
-#settings .head {
-  display: flex;
-  align-items: center;
-  gap: 0.7em;
-  flex-wrap: wrap;
+/* A section's name, a step larger than the page. */
+#settings h2 {
+  margin: 0 0 0.5em;
+  font-size: 1.2em;
+  font-weight: 400;
 }
 
-#settings .switch {
+#settings h2 .count {
+  font-size: 0.8em;
+}
+
+/* One language to pick: a radio and its name. */
+#settings .choice {
   display: flex;
   align-items: center;
   gap: 0.5em;
-  flex: 1;
   cursor: pointer;
 }
 
-#settings .switch input {
+#settings .choice input {
   width: 1.1em;
   height: 1.1em;
   margin: 0;
@@ -291,8 +297,8 @@ body {
   cursor: pointer;
 }
 
-/* A step larger, so a page of lists reads as a page of lists. */
-#settings .switch .name {
+/* A step larger, so the language the app marks reads as the page's subject. */
+#settings .choice .name {
   font-size: 1.2em;
 }
 

@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { SvelteMap, SvelteSet } from "svelte/reactivity";
-	import { addWord, type List } from "#lib/lists.js";
+	import { addWord, CUSTOM_PACK_ID, type Pack } from "#lib/packs.js";
 	import WordRow from "./WordRow.svelte";
 
 	/**
-	 * The settings page: the lists the app marks, the words on each of them, and
-	 * how each word is drawn — its emoji, or a picture in the emoji's place.
+	 * The settings page: the language the app marks, and the parent's own words
+	 * with the emoji or the picture each is drawn with.
 	 *
-	 * It holds no data. It draws the lists it is handed and gives every change
-	 * back through `applyLists`; storing them and redrawing the child's screen
+	 * It holds no data. It draws the packs it is handed and gives every change
+	 * back through `applyPacks`; storing them and redrawing the child's screen
 	 * belong to the caller. The look is the app's own: one large text size,
 	 * black on white (`src/app.css`, DESIGN.md).
 	 */
@@ -17,64 +16,56 @@
 	const RESTORE_ARM_MS = 5000;
 
 	let {
-		lists,
-		activeIds,
+		packs,
+		language,
 		hidden = false,
 		onClose,
-		onToggleList,
-		applyLists,
+		onLanguage,
+		applyPacks,
 		restore
 	}: {
-		lists: List[];
-		activeIds: readonly string[];
+		packs: Pack[];
+		language: string;
 		hidden?: boolean;
 		onClose: () => void;
-		onToggleList: (id: string, on: boolean) => void;
-		applyLists: (next: List[]) => Promise<string | null>;
+		onLanguage: (id: string) => void;
+		applyPacks: (next: Pack[]) => Promise<string | null>;
 		restore: () => Promise<void>;
 	} = $props();
 
-	/** The lists whose words the parent has opened, kept across a redraw. */
-	const opened = new SvelteSet<string>();
-	/** What the parent has typed into an add field, so a refusal keeps it there. */
-	const drafts = new SvelteMap<string, string>();
-	/** Why an add was refused, or a picture refused, under the list it happened on. */
-	const errors = new SvelteMap<string, string>();
+	/** The languages to choose between: every pack but the parent's own. */
+	const languages = $derived(packs.filter((pack) => pack.id !== CUSTOM_PACK_ID));
+	/** The parent's own words, marked whatever language is chosen. */
+	const mine = $derived(packs.find((pack) => pack.id === CUSTOM_PACK_ID));
+	/** What the parent has typed into the add field, so a refusal keeps it there. */
+	let draft = $state("");
+	/** Why an add was refused, or a picture refused. */
+	let error = $state<string | null>(null);
 	/** Whether a Restore is waiting for its second tap. */
 	let armed = $state(false);
 	/** Why the last Restore failed, when it did. */
 	let restoreError = $state<string | null>(null);
 	let armTimer: ReturnType<typeof setTimeout> | undefined;
 
-	/**
-	 * Applies a change to a list. `applyLists` hands back a message when the
-	 * device would not keep the change, and that is put where the list's other
-	 * answers go.
-	 */
-	async function change(listId: string, next: List[]): Promise<void> {
-		const refused = await applyLists(next);
-		if (refused !== null) errors.set(listId, refused);
+	/** Applies a change to the packs; a device that will not keep it is told here. */
+	async function change(next: Pack[]): Promise<void> {
+		const refused = await applyPacks(next);
+		if (refused !== null) error = refused;
 	}
 
-	/** Adds the parent's word to a list, or says why it will not go on. */
-	async function add(listId: string, typed: string): Promise<void> {
-		const result = addWord(lists, listId, typed);
+	/** Adds the parent's word to My words, or says why it will not go there. */
+	async function add(typed: string): Promise<void> {
+		const result = addWord(packs, CUSTOM_PACK_ID, typed);
 		if (result.error !== null) {
-			errors.set(listId, result.error);
+			error = result.error;
 			return;
 		}
-		errors.delete(listId);
-		drafts.delete(listId);
-		await change(listId, result.lists);
+		error = null;
+		draft = "";
+		await change(result.packs);
 	}
 
-	/** Opens a list's words, or closes them again. */
-	function toggleWords(listId: string): void {
-		if (opened.has(listId)) opened.delete(listId);
-		else opened.add(listId);
-	}
-
-	/** Puts the built-in lists back, on the second tap of a two-tap Restore. */
+	/** Puts the built-in words back, on the second tap of a two-tap Restore. */
 	async function onRestore(): Promise<void> {
 		if (!armed) {
 			armed = true;
@@ -90,7 +81,7 @@
 			await restore();
 			restoreError = null;
 		} catch {
-			restoreError = "The app could not put the built-in lists back.";
+			restoreError = "The app could not put the built-in words back.";
 		}
 	}
 </script>
@@ -101,31 +92,34 @@
 		<button type="button" onclick={onClose}>Close</button>
 	</header>
 
-	{#each lists as list (list.id)}
-		<section class="list">
-			<div class="head">
-				<label class="switch">
-					<input
-						type="checkbox"
-						checked={activeIds.includes(list.id)}
-						onchange={(event) => onToggleList(list.id, event.currentTarget.checked)}
-					/>
-					<span class="name">{list.name}</span>
-				</label>
-				<span class="count">({list.words.length})</span>
-				<button type="button" class="more" onclick={() => toggleWords(list.id)}>
-					{opened.has(list.id) ? "Hide words" : "Words"}
-				</button>
-			</div>
+	<section class="section language">
+		<h2>Language</h2>
+		{#each languages as pack (pack.id)}
+			<label class="choice">
+				<input
+					type="radio"
+					name="language"
+					value={pack.id}
+					checked={language === pack.id}
+					onchange={() => onLanguage(pack.id)}
+				/>
+				<span class="name">{pack.name}</span>
+				<span class="count">({pack.words.length})</span>
+			</label>
+		{/each}
+	</section>
 
-			<div class="words" hidden={!opened.has(list.id)}>
-				{#each list.words as entry (entry.word)}
+	{#if mine !== undefined}
+		<section class="section">
+			<h2>My words <span class="count">({mine.words.length})</span></h2>
+			<div class="words">
+				{#each mine.words as entry (entry.word)}
 					<WordRow
-						{lists}
-						listId={list.id}
+						{packs}
+						packId={CUSTOM_PACK_ID}
 						{entry}
-						change={(next) => void change(list.id, next)}
-						onError={(message) => errors.set(list.id, message)}
+						change={(next) => void change(next)}
+						onError={(message) => (error = message)}
 					/>
 				{/each}
 				<div class="add">
@@ -133,30 +127,30 @@
 						type="text"
 						class="new"
 						placeholder="Add a word"
-						aria-label={`Add a word to ${list.name}`}
-						value={drafts.get(list.id) ?? ""}
-						oninput={(event) => drafts.set(list.id, event.currentTarget.value)}
+						aria-label="Add a word to My words"
+						value={draft}
+						oninput={(event) => (draft = event.currentTarget.value)}
 						onkeydown={(event) => {
 							if (event.key !== "Enter") return;
 							event.preventDefault();
-							void add(list.id, drafts.get(list.id) ?? "");
+							void add(draft);
 						}}
 					/>
-					<button type="button" class="submit" onclick={() => void add(list.id, drafts.get(list.id) ?? "")}>Add</button>
+					<button type="button" class="submit" onclick={() => void add(draft)}>Add</button>
 				</div>
-				{#if errors.has(list.id)}
-					<p class="error">{errors.get(list.id)}</p>
+				{#if error !== null}
+					<p class="error">{error}</p>
 				{/if}
 			</div>
 		</section>
-	{/each}
+	{/if}
 
 	<div class="restore">
 		<button type="button" class="restore-button" onclick={onRestore}>
-			{armed ? "Tap again to restore" : "Restore built-in lists"}
+			{armed ? "Tap again to restore" : "Restore built-in words"}
 		</button>
 		<p class="note">
-			{restoreError ?? "Restoring puts the built-in lists back and takes your words, emojis and pictures off this device."}
+			{restoreError ?? "Restoring puts the built-in words back and takes your words, emojis and pictures off this device."}
 		</p>
 	</div>
 

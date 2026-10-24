@@ -10,7 +10,7 @@ const words = new Map<string, Drawing>([
 ]);
 
 describe("markText", () => {
-  test("marks a word on the active list, and only that", () => {
+  test("marks a word on the marked packs, and only that", () => {
     expect(markText("cat", words).map((m) => m.value)).toEqual(["cat"]);
     expect(markText("cot", words)).toEqual([]);
   });
@@ -34,7 +34,7 @@ describe("markText", () => {
     ]);
   });
 
-  test("a word carries the emoji and colour its list gave it", () => {
+  test("a word carries the emoji and colour its pack gave it", () => {
     expect(markText("cat", words)).toEqual([
       { start: 0, end: 3, kind: "word", value: "cat", spoken: "cat", emoji: "🐱", color: "animals", image: undefined },
     ]);
@@ -53,7 +53,7 @@ describe("markText", () => {
     expect(markText("7", words)[0]).not.toHaveProperty("image");
   });
 
-  test("a word carries the picture its list gave it, for the pill to draw instead of an emoji", () => {
+  test("a word carries the picture its pack gave it, for the pill to draw instead of an emoji", () => {
     expect(markText("nana", words)).toEqual([
       { start: 0, end: 4, kind: "word", value: "nana", spoken: "nana", emoji: undefined, color: undefined, image: "data:image/png;base64,AAAA" },
     ]);

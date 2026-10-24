@@ -1,46 +1,39 @@
-const KEY = "keysmash.lists.v2";
+const KEY = "keysmash.language.v3";
 
-/** The parent's choice of which lists are on, as the rest of the app uses it. */
+/** The parent's choice of language, as the rest of the app uses it. */
 export interface Settings {
-  activeListIds(known: readonly string[]): string[];
-  setActiveListIds(ids: readonly string[]): void;
+  language(known: readonly string[]): string;
+  setLanguage(id: string): void;
 }
 
 /**
- * The parent's choice of which lists are on, kept on the device in localStorage
- * (SYSTEM.md). The lists themselves, and everything on them, live in the
+ * The parent's choice of language, kept on the device in localStorage
+ * (SYSTEM.md). The packs themselves, and everything in them, live in the
  * database (`src/lib/store.ts`).
  *
- * The key carries a version. The default changed from a small set of lists to
- * every list, and a device holding a choice made against the old default would
- * otherwise keep the narrow set for ever.
+ * The key carries a version: a device holding the old choice of lists must not
+ * read one of them as a language.
  */
 export function createSettings(): Settings {
   return {
     /**
-     * The active list ids: what is stored, or every list the app knows when
-     * nothing valid is. It is told what the app knows, because a first run asks
-     * before the lists have been read.
+     * The language to mark: what is stored when the app still ships it, else
+     * the first the app knows. It is told what the app knows, because a first
+     * run asks before the packs have been read.
      */
-    activeListIds(known: readonly string[]): string[] {
+    language(known: readonly string[]): string {
       let raw: string | null = null;
       try {
         raw = localStorage.getItem(KEY);
       } catch {
-        return [...known];
+        return known[0] ?? "";
       }
-      if (raw === null) return [...known];
-      try {
-        const ids: unknown = JSON.parse(raw);
-        return Array.isArray(ids) && ids.every((id) => typeof id === "string") ? (ids as string[]) : [...known];
-      } catch {
-        return [...known];
-      }
+      return raw !== null && known.includes(raw) ? raw : (known[0] ?? "");
     },
 
-    setActiveListIds(ids: readonly string[]): void {
+    setLanguage(id: string): void {
       try {
-        localStorage.setItem(KEY, JSON.stringify(ids));
+        localStorage.setItem(KEY, id);
       } catch {
         // A device that refuses storage still plays; the choice just does not stick.
       }

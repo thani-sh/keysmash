@@ -5,7 +5,7 @@
  * An emoji is left out when its colour says nothing about the word — a figure
  * is skin-coloured whatever the word is, a book or a balloon is drawn in
  * whatever colour the font felt like, and a robot is grey. Those words take
- * their list's colour instead, or the ink.
+ * the colour they carry instead, or the ink.
  *
  * The names are palette keys; the values are in `src/app.css` (DESIGN.md).
  */

@@ -2,14 +2,14 @@ import { readDigits } from "./numbers.js";
 
 const TOKEN = /[A-Za-z]+|[0-9]+/g;
 
-/** How a word is drawn on the play screen: the emoji, the colour and the picture its list gave it. */
+/** How a word is drawn on the play screen: the emoji, the colour and the picture its pack gave it. */
 export interface Drawing {
   emoji?: string;
   color?: string;
   image?: string;
 }
 
-/** A run of the child's text the app recognises: a word on an active list, or a number. */
+/** A run of the child's text the app recognises: a word on the marked packs, or a number. */
 export interface Mark {
   /** Index of the mark's first character in the text. */
   start: number;
@@ -22,7 +22,7 @@ export interface Mark {
   spoken: string;
   /** The word's emoji, when it has one. A number carries none. */
   emoji?: string;
-  /** The colour the word is drawn in, when the lists gave it one. A number takes its own. */
+  /** The colour the word is drawn in, when its pack gave it one. A number takes its own. */
   color?: string;
   /** The word's picture, drawn in the emoji's place; a number carries none. */
   image?: string;
@@ -31,10 +31,10 @@ export interface Mark {
 /**
  * Finds the real words and numbers in the text.
  *
- * A letter run is a word when it is on the active lists — an allow-list, never
- * "whatever letters make". A digit run is always a number. Each mark carries the
- * text it covers and the form to speak, and a word carries the emoji, colour and
- * picture its list gave it, for the pill to draw.
+ * A letter run is a word when it is on the packs the app marks — an allow-list,
+ * never "whatever letters make". A digit run is always a number. Each mark
+ * carries the text it covers and the form to speak, and a word carries the
+ * emoji, colour and picture its pack gave it, for the pill to draw.
  */
 export function markText(text: string, words: ReadonlyMap<string, Drawing>): Mark[] {
   const marks: Mark[] = [];

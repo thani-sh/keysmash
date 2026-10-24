@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import SettingsPage from "#lib/components/SettingsPage.svelte";
 	import TextScreen from "#lib/components/TextScreen.svelte";
-	import { wordsFor, type List } from "#lib/lists.js";
+	import { CUSTOM_PACK_ID, wordsFor, type Pack } from "#lib/packs.js";
 	import { createSettings } from "#lib/settings.js";
 	import { createSpeech } from "#lib/speech.js";
 	import { createStore } from "#lib/store.js";
@@ -17,12 +17,12 @@
 	const settings = createSettings();
 	const speech = createSpeech();
 
-	/** The lists the app draws from: the device's copy, seeded on first run. */
-	let lists = $state<List[]>([]);
+	/** The word packs: the device's copy, seeded on first run. */
+	let packs = $state<Pack[]>([]);
 	/** The child's text: written one keypress at a time, never rewritten. */
 	let text = $state("");
-	/** The lists whose words are marked, kept on the device in localStorage. */
-	let activeIds = $state<string[]>([]);
+	/** The language whose words are marked, kept on the device in localStorage. */
+	let language = $state("");
 	/** Whether the parent's page is over the child's screen. */
 	let settingsOpen = $state(false);
 	/** The device is holding the screen, so the corner controls are gone. */
@@ -35,7 +35,7 @@
 	/** What was last spoken at each mark position, so a word is spoken once. */
 	const spoken = new Map<number, string>();
 
-	const activeWords = $derived(wordsFor(activeIds, lists));
+	const activeWords = $derived(wordsFor(language, packs));
 
 	/**
 	 * Writes the character at the caret and speaks its name only when nothing
@@ -108,31 +108,23 @@
 		settingsOpen = false;
 	}
 
-	/** Keeps the parent's choice of lists on the device, and marks by it. */
-	function setActiveIds(ids: string[]): void {
-		settings.setActiveListIds(ids);
-		activeIds = ids;
-	}
-
-	/** Turns one list on or off, taking the ids back in the order the lists are held. */
-	function toggleList(id: string, on: boolean): void {
-		const chosen = new Set(activeIds);
-		if (on) chosen.add(id);
-		else chosen.delete(id);
-		setActiveIds(lists.filter((list) => chosen.has(list.id)).map((list) => list.id));
+	/** Keeps the parent's choice of language on the device, and marks by it. */
+	function setLanguage(id: string): void {
+		settings.setLanguage(id);
+		language = id;
 	}
 
 	/**
 	 * Shows the parent's change at once, then keeps it; a device that will not
 	 * keep it says so.
 	 */
-	async function applyLists(next: List[]): Promise<string | null> {
-		const before = new Map(lists.map((list) => [list.id, list]));
-		lists = next;
-		for (const list of next) {
-			if (before.get(list.id) === list) continue;
+	async function applyPacks(next: Pack[]): Promise<string | null> {
+		const before = new Map(packs.map((pack) => [pack.id, pack]));
+		packs = next;
+		for (const pack of next) {
+			if (before.get(pack.id) === pack) continue;
 			try {
-				await store.put(list);
+				await store.put(pack);
 			} catch {
 				return "The device would not keep that change.";
 			}
@@ -140,10 +132,10 @@
 		return null;
 	}
 
-	/** Puts the built-in lists back, taking the parent's edits off the device. */
+	/** Puts the built-in packs back, taking the parent's words and pictures off the device. */
 	async function restore(): Promise<void> {
 		await store.restore();
-		lists = await store.lists();
+		packs = await store.packs();
 	}
 
 	async function toggleFullscreen(): Promise<void> {
@@ -166,18 +158,18 @@
 		document.addEventListener("fullscreenchange", syncControls);
 		void (async () => {
 			try {
-				lists = await store.lists();
+				packs = await store.packs();
 			} catch {
 				// A device that will not give the page a database still plays; nothing is marked.
-				lists = [];
+				packs = [];
 			}
-			activeIds = settings.activeListIds(lists.map((list) => list.id));
+			language = settings.language(packs.filter((pack) => pack.id !== CUSTOM_PACK_ID).map((pack) => pack.id));
 		})();
 		return () => document.removeEventListener("fullscreenchange", syncControls);
 	});
 
-	// A list turning on or off changes what the text marks, so the words the app
-	// has already spoken are spoken again against the lists the parent chose.
+	// A change of language changes what the text marks, so the words the app has
+	// already spoken are spoken again against the language the parent chose.
 	$effect(() => {
 		void activeWords;
 		spoken.clear();
@@ -209,11 +201,11 @@
 </section>
 
 <SettingsPage
-	{lists}
-	{activeIds}
-	{applyLists}
+	{packs}
+	{language}
+	{applyPacks}
 	{restore}
-	onToggleList={toggleList}
+	onLanguage={setLanguage}
 	onClose={closeSettings}
 	hidden={!settingsOpen}
 />

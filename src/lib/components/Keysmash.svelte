@@ -124,7 +124,9 @@
 		for (const pack of next) {
 			if (before.get(pack.id) === pack) continue;
 			try {
-				await store.put(pack);
+				// The packs the page holds are Svelte's own state objects, and the
+				// database cannot clone one: it is given plain data.
+				await store.put($state.snapshot(pack) as Pack);
 			} catch {
 				return "The device would not keep that change.";
 			}
